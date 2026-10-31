@@ -18,7 +18,16 @@ class MonthlyBudgetDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<int> upsert(MonthlyBudgetsCompanion entry) {
-    return into(monthlyBudgets).insertOnConflictUpdate(entry);
+    return into(monthlyBudgets).insert(
+      entry,
+      onConflict: DoUpdate(
+        (old) => MonthlyBudgetsCompanion(
+          budgetAmount: entry.budgetAmount,
+          updatedAt: Value(DateTime.now()),
+        ),
+        target: [monthlyBudgets.month, monthlyBudgets.year],
+      ),
+    );
   }
 
   Future<int> deleteBudget(int id) {
