@@ -1,0 +1,72 @@
+import 'package:drift/drift.dart';
+
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/daos/fixed_expense_dao.dart';
+import '../../../../core/database/daos/monthly_budget_dao.dart';
+
+class FixedExpenseLocalDatasource {
+  final FixedExpenseDao _fixedExpenseDao;
+  final MonthlyBudgetDao _budgetDao;
+
+  FixedExpenseLocalDatasource({
+    required FixedExpenseDao fixedExpenseDao,
+    required MonthlyBudgetDao budgetDao,
+  })  : _fixedExpenseDao = fixedExpenseDao,
+        _budgetDao = budgetDao;
+
+  Stream<List<FixedExpenseWithCategory>> watchActiveWithPayments(
+      int month, int year) {
+    return _fixedExpenseDao.watchActiveWithPayments(month, year);
+  }
+
+  Future<List<FixedExpenseWithCategory>> getActiveWithPayments(
+      int month, int year) {
+    return _fixedExpenseDao.getActiveWithPayments(month, year);
+  }
+
+  Future<int> insertFixedExpense(
+      String name, double amount, int categoryId) {
+    return _fixedExpenseDao.insertFixedExpense(
+      FixedExpensesCompanion.insert(
+        name: name,
+        amount: amount,
+        categoryId: categoryId,
+      ),
+    );
+  }
+
+  Future<void> updateFixedExpense(
+      int id, String name, double amount, int categoryId) {
+    return _fixedExpenseDao.updateFixedExpense(
+      FixedExpensesCompanion(
+        id: Value(id),
+        name: Value(name),
+        amount: Value(amount),
+        categoryId: Value(categoryId),
+      ),
+    );
+  }
+
+  Future<int> deleteFixedExpense(int id) {
+    return _fixedExpenseDao.deleteFixedExpense(id);
+  }
+
+  Future<void> togglePayment(
+      int fixedExpenseId, int month, int year, bool isPaid) {
+    return _fixedExpenseDao.togglePayment(
+        fixedExpenseId, month, year, isPaid);
+  }
+
+  Future<double> sumActiveExpenses() {
+    return _fixedExpenseDao.sumActiveExpenses();
+  }
+
+  Future<double> sumPaidExpenses(int month, int year) {
+    return _fixedExpenseDao.sumPaidExpenses(month, year);
+  }
+
+  Future<double?> getBudgetAmount(int month, int year) async {
+    final budget = await _budgetDao.getByMonthYear(month, year);
+    return budget?.budgetAmount;
+  }
+}
