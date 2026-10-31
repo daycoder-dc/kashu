@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/icon_registry.dart';
 import '../../domain/entities/debt_payment_entity.dart';
 import '../cubit/debts_cubit.dart';
 import '../cubit/debts_state.dart';
@@ -71,8 +72,7 @@ class _DebtDetailPageState extends State<DebtDetailPage> {
                       Row(
                         children: [
                           Icon(
-                            IconData(debt.categoryIconCodePoint,
-                                fontFamily: 'MaterialIcons'),
+                            resolveIcon(debt.categoryIconCodePoint),
                             color: Color(debt.categoryColor),
                           ),
                           const SizedBox(width: Spacing.sm),

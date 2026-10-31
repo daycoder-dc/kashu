@@ -53,10 +53,8 @@ lib/
 flutter build apk --debug
 
 # Release (requiere key.properties + keystore)
-flutter build apk --release --no-tree-shake-icons
+flutter build apk --release
 ```
-
-El flag `--no-tree-shake-icons` es necesario porque las categorias construyen `IconData` dinamicamente desde code points almacenados en la base de datos.
 
 ## Configuracion de firma
 

@@ -10,6 +10,7 @@ import '../../../../core/database/daos/debt_dao.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/icon_registry.dart';
 import '../../../../shared/widgets/kpi_card.dart';
 import '../../domain/entities/debt_entity.dart';
 import '../cubit/debts_cubit.dart';
@@ -253,8 +254,7 @@ class _DebtTile extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    IconData(debt.categoryIconCodePoint,
-                        fontFamily: 'MaterialIcons'),
+                    resolveIcon(debt.categoryIconCodePoint),
                     color: Color(debt.categoryColor),
                     size: 20,
                   ),

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../../core/enums/transaction_type.dart';
+import '../../../../core/utils/icon_registry.dart';
 
 class CategoryEntity extends Equatable {
   final int id;
@@ -22,8 +23,7 @@ class CategoryEntity extends Equatable {
     required this.isDefault,
   });
 
-  // ignore: non_const_argument_for_const_parameter
-  IconData get iconData => IconData(iconCodePoint, fontFamily: iconFontFamily);
+  IconData get iconData => resolveIcon(iconCodePoint);
 
   Color get displayColor => Color(color);
 

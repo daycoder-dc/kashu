@@ -5,6 +5,7 @@ import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/enums/transaction_type.dart';
+import '../../../../core/utils/icon_registry.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../shared/widgets/breathing_icon.dart';
 import '../../../../shared/widgets/kpi_card.dart';
@@ -284,8 +285,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  IconData(expense.categoryIconCodePoint,
-                      fontFamily: 'MaterialIcons'),
+                  resolveIcon(expense.categoryIconCodePoint),
                   color: color,
                   size: 20,
                 ),
