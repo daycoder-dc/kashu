@@ -43,7 +43,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(PhosphorIconsLight.chartBar),
             selectedIcon: Icon(PhosphorIconsFill.chartBar),
-            label: 'Estadisticas',
+            label: 'Stats',
           ),
         ],
       ),
