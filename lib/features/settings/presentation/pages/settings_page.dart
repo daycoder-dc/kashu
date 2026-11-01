@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +7,7 @@ import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_info.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/thousand_separator_formatter.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
 import 'credits_page.dart';
@@ -62,7 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
           if (state is SettingsLoaded && !_budgetLoaded) {
             if (state.budgetAmount != null) {
               _budgetController.text =
-                  state.budgetAmount!.toStringAsFixed(0);
+                  ThousandSeparatorFormatter.format(state.budgetAmount!);
             }
             _budgetLoaded = true;
           }
@@ -111,7 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
+                          ThousandSeparatorFormatter(),
                         ],
                       ),
                     ),
@@ -285,7 +285,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _saveBudget() {
     final text = _budgetController.text.trim();
     if (text.isEmpty) return;
-    final amount = double.tryParse(text);
+    final amount = ThousandSeparatorFormatter.parse(text);
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ingresa un monto valido')),

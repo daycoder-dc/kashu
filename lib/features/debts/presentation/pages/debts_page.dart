@@ -11,6 +11,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/icon_registry.dart';
+import '../../../../core/utils/thousand_separator_formatter.dart';
 import '../../../../shared/widgets/kpi_card.dart';
 import '../../domain/entities/debt_entity.dart';
 import '../cubit/debts_cubit.dart';
@@ -345,14 +346,14 @@ class _AddDebtFormState extends State<_AddDebtForm> {
 
   void _recalculate() {
     if (!_autoCalculate) return;
-    final amount = double.tryParse(_amountController.text);
+    final amount = ThousandSeparatorFormatter.parse(_amountController.text);
     final rate = double.tryParse(_rateController.text);
     final installments = int.tryParse(_installmentsController.text);
     if (amount != null && rate != null && installments != null &&
         installments > 0 && amount > 0) {
       final monthly = DebtDao.calculateMonthlyPayment(
           amount, rate, installments);
-      _monthlyController.text = monthly.toStringAsFixed(0);
+      _monthlyController.text = ThousandSeparatorFormatter.format(monthly);
     }
   }
 
@@ -392,10 +393,10 @@ class _AddDebtFormState extends State<_AddDebtForm> {
                   prefixIcon: Icon(PhosphorIconsLight.currencyDollar),
                 ),
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [ThousandSeparatorFormatter()],
                 onChanged: (_) => _recalculate(),
                 validator: (v) {
-                  final n = double.tryParse(v ?? '');
+                  final n = ThousandSeparatorFormatter.parse(v ?? '');
                   return (n == null || n <= 0) ? 'Monto invalido' : null;
                 },
               ),
@@ -449,12 +450,10 @@ class _AddDebtFormState extends State<_AddDebtForm> {
                         prefixIcon: Icon(PhosphorIconsLight.money),
                       ),
                       keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
+                      inputFormatters: [ThousandSeparatorFormatter()],
                       enabled: !_autoCalculate,
                       validator: (v) {
-                        final n = double.tryParse(v ?? '');
+                        final n = ThousandSeparatorFormatter.parse(v ?? '');
                         return (n == null || n <= 0)
                             ? 'Cuota invalida'
                             : null;
@@ -513,10 +512,10 @@ class _AddDebtFormState extends State<_AddDebtForm> {
     if (!_formKey.currentState!.validate()) return;
     widget.onSave(
       _nameController.text.trim(),
-      double.parse(_amountController.text),
+      ThousandSeparatorFormatter.parse(_amountController.text) ?? 0,
       double.parse(_rateController.text),
       int.parse(_installmentsController.text),
-      double.parse(_monthlyController.text),
+      ThousandSeparatorFormatter.parse(_monthlyController.text) ?? 0,
       _startDate,
       _categoryId,
     );

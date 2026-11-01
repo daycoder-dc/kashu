@@ -93,6 +93,16 @@ class _PinSetupPageState extends State<PinSetupPage> {
       listener: (context, state) {
         if (state is AuthError) {
           setState(() => _errorMessage = state.message);
+        } else if (state is AuthAuthenticated && widget.isChange) {
+          if (context.mounted) {
+            final nav = Navigator.of(context, rootNavigator: true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('PIN actualizado')),
+            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              nav.pop();
+            });
+          }
         }
       },
       child: Scaffold(
@@ -101,7 +111,7 @@ class _PinSetupPageState extends State<PinSetupPage> {
                 title: const Text('Cambiar PIN'),
                 leading: IconButton(
                   icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
                 ),
               )
             : null,

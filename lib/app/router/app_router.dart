@@ -153,7 +153,6 @@ class AppRouter {
     final isOnAuthPage = currentPath == '/splash' ||
         currentPath == '/lock' ||
         currentPath == '/pin-setup' ||
-        currentPath == '/pin-change' ||
         currentPath == '/onboarding';
 
     if (authState is AuthAuthenticated) {

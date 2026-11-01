@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/utils/icon_registry.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/thousand_separator_formatter.dart';
 import '../../../../shared/widgets/breathing_icon.dart';
 import '../../../../shared/widgets/kpi_card.dart';
 import '../../../../shared/widgets/month_selector.dart';
@@ -384,7 +385,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
     final nameController =
         TextEditingController(text: isEdit ? expense.name : '');
     final amountController = TextEditingController(
-        text: isEdit ? expense.amount.toStringAsFixed(0) : '');
+        text: isEdit ? ThousandSeparatorFormatter.format(expense.amount) : '');
     int? selectedCategoryId = isEdit ? expense.categoryId : null;
 
     final formCubit = sl<TransactionFormCubit>();
@@ -431,6 +432,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                       prefixText: '\$ ',
                     ),
                     keyboardType: TextInputType.number,
+                    inputFormatters: [ThousandSeparatorFormatter()],
                   ),
                   const SizedBox(height: 12),
                   BlocBuilder<TransactionFormCubit, TransactionFormState>(
@@ -472,7 +474,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                     onPressed: () {
                       final name = nameController.text.trim();
                       final amount =
-                          double.tryParse(amountController.text.trim());
+                          ThousandSeparatorFormatter.parse(amountController.text.trim());
                       if (name.isEmpty ||
                           amount == null ||
                           selectedCategoryId == null) {

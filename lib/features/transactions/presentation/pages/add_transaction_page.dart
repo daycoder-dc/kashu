@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +10,7 @@ import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/enums/transaction_type.dart';
+import '../../../../core/utils/thousand_separator_formatter.dart';
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../cubit/transaction_form_cubit.dart';
@@ -52,7 +52,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     if (_isEditing) {
       final e = widget.existing!;
       _conceptController.text = e.concept;
-      _amountController.text = e.amount.toStringAsFixed(0);
+      _amountController.text = ThousandSeparatorFormatter.format(e.amount);
       _selectedType = e.type;
       _selectedDate = e.date;
       _isPaid = e.isPaid;
@@ -127,10 +127,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     prefixIcon: Icon(PhosphorIconsLight.currencyDollar),
                   ),
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [ThousandSeparatorFormatter()],
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Requerido';
-                    final amount = double.tryParse(v);
+                    final amount = ThousandSeparatorFormatter.parse(v);
                     if (amount == null || amount <= 0) return 'Monto invalido';
                     return null;
                   },
@@ -333,7 +333,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final entity = TransactionEntity(
       id: widget.existing?.id ?? 0,
       concept: _conceptController.text.trim(),
-      amount: double.parse(_amountController.text),
+      amount: ThousandSeparatorFormatter.parse(_amountController.text) ?? 0,
       type: _selectedType,
       isPaid: _selectedType == TransactionType.expense ? _isPaid : false,
       imagePath: _imagePath,
