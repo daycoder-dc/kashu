@@ -14,17 +14,17 @@ class AppColors extends ThemeExtension<AppColors> {
   });
 
   static const light = AppColors(
-    income: Color(0xFF2E7D32),
-    expense: Color(0xFFB3261E),
-    warning: Color(0xFFE65100),
-    success: Color(0xFF2E7D32),
+    income: Color(0xFF16A34A),
+    expense: Color(0xFFDC2626),
+    warning: Color(0xFFD97706),
+    success: Color(0xFF16A34A),
   );
 
   static const dark = AppColors(
-    income: Color(0xFF81C784),
-    expense: Color(0xFFEF9A9A),
-    warning: Color(0xFFFFB74D),
-    success: Color(0xFF81C784),
+    income: Color(0xFF4ADE80),
+    expense: Color(0xFFF87171),
+    warning: Color(0xFFFBBF24),
+    success: Color(0xFF4ADE80),
   );
 
   @override

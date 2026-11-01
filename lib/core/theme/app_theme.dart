@@ -14,6 +14,26 @@ class Spacing {
 }
 
 class AppTheme {
+  static const _brandPrimary = Color(0xFF4F46E5);
+
+  static const _colors = FlexSchemeColor(
+    primary: _brandPrimary,
+    primaryContainer: Color(0xFFE0DEFF),
+    secondary: Color(0xFF5C6BC0),
+    secondaryContainer: Color(0xFFDDE1FF),
+    tertiary: Color(0xFF7C4DFF),
+    tertiaryContainer: Color(0xFFEDE7FF),
+  );
+
+  static const _darkColors = FlexSchemeColor(
+    primary: Color(0xFFB8B3FF),
+    primaryContainer: Color(0xFF3730A3),
+    secondary: Color(0xFF9FA8DA),
+    secondaryContainer: Color(0xFF3949AB),
+    tertiary: Color(0xFFCEB5FF),
+    tertiaryContainer: Color(0xFF5B21B6),
+  );
+
   static const _subThemes = FlexSubThemesData(
     interactionEffects: true,
     blendOnLevel: 10,
@@ -31,7 +51,7 @@ class AppTheme {
 
   static ThemeData light() {
     final base = FlexThemeData.light(
-      scheme: FlexScheme.indigoM3,
+      colors: _colors,
       useMaterial3: true,
       textTheme: AppTypography.textTheme,
       subThemesData: _subThemes,
@@ -64,7 +84,7 @@ class AppTheme {
 
   static ThemeData dark() {
     final base = FlexThemeData.dark(
-      scheme: FlexScheme.indigoM3,
+      colors: _darkColors,
       useMaterial3: true,
       textTheme: AppTypography.textTheme,
       subThemesData: _subThemes.copyWith(blendOnLevel: 20),
