@@ -6,6 +6,7 @@ import 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;
   bool _biometricAvailable = false;
+  bool _isAuthenticating = false;
 
   AuthCubit({required AuthRepository repository})
       : _repository = repository,
@@ -39,18 +40,24 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> authenticateWithBiometrics() async {
-    final result = await _repository.authenticateWithBiometrics();
-    result.fold(
-      (failure) => emit(AuthPinError(
-        message: failure.message,
-        biometricAvailable: _biometricAvailable,
-      )),
-      (success) {
-        if (success) {
-          emit(const AuthAuthenticated());
-        }
-      },
-    );
+    if (_isAuthenticating) return;
+    _isAuthenticating = true;
+    try {
+      final result = await _repository.authenticateWithBiometrics();
+      result.fold(
+        (failure) => emit(AuthPinError(
+          message: failure.message,
+          biometricAvailable: _biometricAvailable,
+        )),
+        (success) {
+          if (success) {
+            emit(const AuthAuthenticated());
+          }
+        },
+      );
+    } finally {
+      _isAuthenticating = false;
+    }
   }
 
   Future<void> authenticateWithPin(String pin) async {

@@ -50,7 +50,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void dispose() {
-    _dashboardCubit.close();
     _transactionListCubit.close();
     super.dispose();
   }
@@ -149,7 +148,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               KpiCard(
                 title: 'Gastos',
-                value: _currencyFormatter.format(s.totalExpenses),
+                value: _currencyFormatter.format(s.allExpenses),
                 icon: PhosphorIcon(
                   PhosphorIconsDuotone.arrowUp,
                   size: 18,
@@ -159,7 +158,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               KpiCard(
                 title: 'Pagado',
-                value: _currencyFormatter.format(s.totalPaidExpenses),
+                value: _currencyFormatter.format(s.allPaid),
                 icon: PhosphorIcon(
                   PhosphorIconsDuotone.checkCircle,
                   size: 18,

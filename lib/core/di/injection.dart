@@ -71,6 +71,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => DashboardLocalDatasource(
         transactionDao: sl(),
         budgetDao: sl(),
+        fixedExpenseDao: sl(),
+        debtDao: sl(),
       ));
   sl.registerLazySingleton(() => StatisticsLocalDatasource(
         transactionDao: sl(),
@@ -128,7 +130,7 @@ Future<void> initDependencies() async {
         updateTransaction: sl(),
         deleteTransaction: sl(),
       ));
-  sl.registerFactory(() => DashboardCubit(
+  sl.registerLazySingleton(() => DashboardCubit(
         getMonthlySummary: sl(),
       ));
   sl.registerFactory(() => StatisticsCubit(

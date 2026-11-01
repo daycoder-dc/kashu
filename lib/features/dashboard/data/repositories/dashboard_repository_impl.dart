@@ -15,17 +15,23 @@ class DashboardRepositoryImpl implements DashboardRepository {
   @override
   FutureEither<MonthlySummary> getMonthlySummary(int month, int year) async {
     try {
-      final expenses = await _datasource.getTotalExpenses(month, year);
-      final income = await _datasource.getTotalIncome(month, year);
-      final paidExpenses = await _datasource.getTotalPaidExpenses(month, year);
+      final results = await Future.wait([
+        _datasource.getTotalExpenses(month, year),
+        _datasource.getTotalIncome(month, year),
+        _datasource.getTotalPaidExpenses(month, year),
+        _datasource.getFixedExpensesPaid(month, year),
+        _datasource.getDebtPaymentsPaid(month, year),
+      ]);
       final budget = await _datasource.getBudgetAmount(month, year);
 
       return Right(MonthlySummary(
         month: month,
         year: year,
-        totalIncome: income,
-        totalExpenses: expenses,
-        totalPaidExpenses: paidExpenses,
+        totalIncome: results[1],
+        totalExpenses: results[0],
+        totalPaidExpenses: results[2],
+        fixedExpensesPaid: results[3],
+        debtPaymentsPaid: results[4],
         budgetAmount: budget,
       ));
     } catch (e) {

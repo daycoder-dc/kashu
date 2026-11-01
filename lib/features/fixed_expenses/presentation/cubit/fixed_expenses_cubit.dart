@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/di/injection.dart';
+import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
 import '../../domain/repositories/fixed_expense_repository.dart';
 import 'fixed_expenses_state.dart';
 
@@ -28,6 +30,7 @@ class FixedExpensesCubit extends Cubit<FixedExpensesState> {
       isPaid: isPaid,
     );
     await loadMonth(month, year);
+    sl<DashboardCubit>().refresh();
   }
 
   Future<void> createFixedExpense({

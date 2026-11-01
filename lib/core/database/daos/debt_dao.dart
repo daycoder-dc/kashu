@@ -144,6 +144,17 @@ class DebtDao extends DatabaseAccessor<AppDatabase> with _$DebtDaoMixin {
     return rows.first.read(sum) ?? 0.0;
   }
 
+  Future<double> sumPaidPayments(int month, int year) async {
+    final sum = debtPayments.amount.sum();
+    final query = selectOnly(debtPayments)
+      ..addColumns([sum])
+      ..where(debtPayments.isPaid.equals(true) &
+          debtPayments.month.equals(month) &
+          debtPayments.year.equals(year));
+    final result = await query.getSingle();
+    return result.read(sum) ?? 0.0;
+  }
+
   static double calculateMonthlyPayment(
       double principal, double annualRate, int installments) {
     if (annualRate <= 0) return principal / installments;

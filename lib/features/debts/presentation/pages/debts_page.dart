@@ -130,7 +130,10 @@ class _DebtsPageState extends State<DebtsPage> {
                 ...summary.debts.map((debt) => _DebtTile(
                       debt: debt,
                       currencyFormat: currencyFormat,
-                      onTap: () => context.push('/debts/${debt.id}'),
+                      onTap: () async {
+                        await context.push('/debts/${debt.id}');
+                        _cubit.loadDebts();
+                      },
                       onDelete: () => _confirmDelete(debt),
                     )),
             ],
