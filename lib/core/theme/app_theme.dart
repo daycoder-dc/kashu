@@ -94,10 +94,17 @@ class AppTheme {
     );
     final scheme = base.colorScheme.copyWith(
       surface: _darkSurface,
+      surfaceContainerLowest: const Color(0xFF2D2780),
+      surfaceContainerLow: const Color(0xFF332D94),
+      surfaceContainer: const Color(0xFF3A34A8),
+      surfaceContainerHigh: const Color(0xFF4A44C8),
+      surfaceContainerHighest: const Color(0xFF5650D4),
       onSurface: Colors.white,
       onSurfaceVariant: const Color(0xFFD0CDF5),
-      outline: const Color(0xFF6D68C4),
-      outlineVariant: const Color(0xFF534EAA),
+      outline: const Color(0xFF8B86D8),
+      outlineVariant: const Color(0xFF6B65C0),
+      inverseSurface: const Color(0xFFE8E5FF),
+      onInverseSurface: const Color(0xFF2D2780),
     );
     return base.copyWith(
       colorScheme: scheme,
@@ -120,6 +127,71 @@ class AppTheme {
         ),
         color: _darkSurface,
       ),
+      inputDecorationTheme: base.inputDecorationTheme.copyWith(
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: scheme.outline, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
+        ),
+        hintStyle: TextStyle(color: const Color(0xFF9B97D4)),
+        prefixIconColor: const Color(0xFFD0CDF5),
+        suffixIconColor: const Color(0xFFD0CDF5),
+        fillColor: _darkSurface,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: _brandPrimary,
+          foregroundColor: Colors.white,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF4A44C8),
+          foregroundColor: Colors.white,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFFD0CDF5),
+          side: BorderSide(color: scheme.outline),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return _brandPrimary;
+            }
+            return Colors.transparent;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return Colors.white;
+            }
+            return const Color(0xFFD0CDF5);
+          }),
+          side: WidgetStatePropertyAll(
+            BorderSide(color: scheme.outline),
+          ),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return const Color(0xFF9B97D4);
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return _brandPrimary;
+          return const Color(0xFF4A44C8);
+        }),
+        trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return _brandPrimary;
+          return scheme.outline;
+        }),
+      ),
       navigationBarTheme: base.navigationBarTheme.copyWith(
         elevation: 0,
         backgroundColor: _darkScaffold,
@@ -137,6 +209,9 @@ class AppTheme {
       ),
       bottomSheetTheme: base.bottomSheetTheme.copyWith(
         backgroundColor: _darkSurface,
+      ),
+      dividerTheme: DividerThemeData(
+        color: scheme.outlineVariant,
       ),
       extensions: [AppColors.dark],
     );
