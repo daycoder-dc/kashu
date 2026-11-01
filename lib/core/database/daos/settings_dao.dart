@@ -18,8 +18,12 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<void> setValue(String key, String value) {
-    return into(userSettings).insertOnConflictUpdate(
+    return into(userSettings).insert(
       UserSettingsCompanion.insert(key: key, value: value),
+      onConflict: DoUpdate(
+        (old) => UserSettingsCompanion(value: Value(value)),
+        target: [userSettings.key],
+      ),
     );
   }
 
