@@ -25,11 +25,14 @@ class AppTheme {
     tertiaryContainer: Color(0xFFEDE7FF),
   );
 
+  static const _darkScaffold = Color(0xFF3730A3);
+  static const _darkSurface = Color(0xFF3F38B8);
+
   static const _darkColors = FlexSchemeColor(
     primary: Color(0xFFB8B3FF),
-    primaryContainer: Color(0xFF3730A3),
+    primaryContainer: Color(0xFF4F46E5),
     secondary: Color(0xFF9FA8DA),
-    secondaryContainer: Color(0xFF3949AB),
+    secondaryContainer: Color(0xFF4338CA),
     tertiary: Color(0xFFCEB5FF),
     tertiaryContainer: Color(0xFF5B21B6),
   );
@@ -89,10 +92,21 @@ class AppTheme {
       textTheme: AppTypography.textTheme,
       subThemesData: _subThemes.copyWith(blendOnLevel: 20),
     );
+    final scheme = base.colorScheme.copyWith(
+      surface: _darkSurface,
+      onSurface: Colors.white,
+      onSurfaceVariant: const Color(0xFFD0CDF5),
+      outline: const Color(0xFF6D68C4),
+      outlineVariant: const Color(0xFF534EAA),
+    );
     return base.copyWith(
+      colorScheme: scheme,
+      scaffoldBackgroundColor: _darkScaffold,
       appBarTheme: base.appBarTheme.copyWith(
         elevation: 0,
         scrolledUnderElevation: 0.5,
+        backgroundColor: _darkScaffold,
+        foregroundColor: Colors.white,
       ),
       cardTheme: CardThemeData(
         elevation: 0,
@@ -100,16 +114,29 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
           side: BorderSide(
-            color: base.colorScheme.outlineVariant,
+            color: scheme.outlineVariant,
             width: 1,
           ),
         ),
-        color: base.colorScheme.surface,
+        color: _darkSurface,
       ),
       navigationBarTheme: base.navigationBarTheme.copyWith(
         elevation: 0,
+        backgroundColor: _darkScaffold,
         indicatorColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
+        iconTheme: WidgetStatePropertyAll(
+          IconThemeData(color: const Color(0xFFD0CDF5)),
+        ),
+        labelTextStyle: WidgetStatePropertyAll(
+          TextStyle(color: const Color(0xFFD0CDF5), fontSize: 12),
+        ),
+      ),
+      dialogTheme: base.dialogTheme.copyWith(
+        backgroundColor: _darkSurface,
+      ),
+      bottomSheetTheme: base.bottomSheetTheme.copyWith(
+        backgroundColor: _darkSurface,
       ),
       extensions: [AppColors.dark],
     );
