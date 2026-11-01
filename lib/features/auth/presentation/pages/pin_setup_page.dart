@@ -118,7 +118,7 @@ class _PinSetupPageState extends State<PinSetupPage> {
         body: SafeArea(
           child: Column(
             children: [
-              const Spacer(flex: 2),
+              Spacer(flex: widget.isChange ? 1 : 2),
               Icon(
                 _step == _SetupStep.create
                     ? Icons.pin_rounded
@@ -142,7 +142,7 @@ class _PinSetupPageState extends State<PinSetupPage> {
                           : colorScheme.onSurfaceVariant,
                     ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               PinDotIndicator(
                 pinLength: _pinLength,
                 filledCount: _enteredPin.length,
@@ -153,7 +153,7 @@ class _PinSetupPageState extends State<PinSetupPage> {
                 onDigitPressed: _onDigit,
                 onDeletePressed: _onDelete,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
             ],
           ),
         ),
