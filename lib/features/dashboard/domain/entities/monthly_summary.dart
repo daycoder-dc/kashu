@@ -6,7 +6,9 @@ class MonthlySummary extends Equatable {
   final double totalIncome;
   final double totalExpenses;
   final double totalPaidExpenses;
+  final double fixedExpensesTotal;
   final double fixedExpensesPaid;
+  final double debtPaymentsTotal;
   final double debtPaymentsPaid;
   final double? budgetAmount;
 
@@ -16,13 +18,15 @@ class MonthlySummary extends Equatable {
     required this.totalIncome,
     required this.totalExpenses,
     required this.totalPaidExpenses,
+    this.fixedExpensesTotal = 0,
     this.fixedExpensesPaid = 0,
+    this.debtPaymentsTotal = 0,
     this.debtPaymentsPaid = 0,
     this.budgetAmount,
   });
 
   double get allExpenses =>
-      totalExpenses + fixedExpensesPaid + debtPaymentsPaid;
+      totalExpenses + fixedExpensesTotal + debtPaymentsTotal;
 
   double get allPaid =>
       totalPaidExpenses + fixedExpensesPaid + debtPaymentsPaid;
@@ -31,7 +35,7 @@ class MonthlySummary extends Equatable {
 
   double get remainingExpenses => totalExpenses - totalPaidExpenses;
 
-  double get availableBalance => totalIncome - allPaid;
+  double get availableBalance => totalIncome - allExpenses;
 
   @override
   List<Object?> get props => [
@@ -40,7 +44,9 @@ class MonthlySummary extends Equatable {
         totalIncome,
         totalExpenses,
         totalPaidExpenses,
+        fixedExpensesTotal,
         fixedExpensesPaid,
+        debtPaymentsTotal,
         debtPaymentsPaid,
         budgetAmount,
       ];

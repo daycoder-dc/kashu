@@ -19,7 +19,9 @@ class DashboardRepositoryImpl implements DashboardRepository {
         _datasource.getTotalExpenses(month, year),
         _datasource.getTotalIncome(month, year),
         _datasource.getTotalPaidExpenses(month, year),
+        _datasource.getFixedExpensesTotal(),
         _datasource.getFixedExpensesPaid(month, year),
+        _datasource.getDebtPaymentsTotal(month, year),
         _datasource.getDebtPaymentsPaid(month, year),
       ]);
       final budget = await _datasource.getBudgetAmount(month, year);
@@ -30,8 +32,10 @@ class DashboardRepositoryImpl implements DashboardRepository {
         totalIncome: results[1],
         totalExpenses: results[0],
         totalPaidExpenses: results[2],
-        fixedExpensesPaid: results[3],
-        debtPaymentsPaid: results[4],
+        fixedExpensesTotal: results[3],
+        fixedExpensesPaid: results[4],
+        debtPaymentsTotal: results[5],
+        debtPaymentsPaid: results[6],
         budgetAmount: budget,
       ));
     } catch (e) {

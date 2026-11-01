@@ -1,5 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 
+import '../../../../core/database/daos/debt_dao.dart';
+import '../../../../core/database/daos/fixed_expense_dao.dart';
+import '../../../../core/database/daos/transaction_dao.dart';
 import '../../../../core/error/either_typedefs.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/category_stat.dart';
@@ -16,8 +19,15 @@ class StatisticsRepositoryImpl implements StatisticsRepository {
   FutureEither<List<CategoryStat>> getCategoryBreakdown(
       int month, int year) async {
     try {
-      final rows =
-          await _datasource.watchExpensesByMonth(month, year).first;
+      final results = await Future.wait([
+        _datasource.watchExpensesByMonth(month, year).first,
+        _datasource.getFixedExpenses(month, year),
+        _datasource.getActiveDebts(),
+      ]);
+
+      final rows = results[0] as List<TransactionWithCategory>;
+      final fixedExpenses = results[1] as List<FixedExpenseWithCategory>;
+      final debts = results[2] as List<DebtWithCategory>;
 
       final Map<String, _Accumulator> grouped = {};
       double total = 0;
@@ -30,6 +40,22 @@ class StatisticsRepositoryImpl implements StatisticsRepository {
           grouped[name]!.amount += row.transaction.amount;
           total += row.transaction.amount;
         }
+      }
+
+      for (final fe in fixedExpenses) {
+        final name = fe.category.name;
+        grouped.putIfAbsent(
+            name, () => _Accumulator(color: fe.category.color));
+        grouped[name]!.amount += fe.fixedExpense.amount;
+        total += fe.fixedExpense.amount;
+      }
+
+      for (final d in debts) {
+        final name = d.category.name;
+        grouped.putIfAbsent(
+            name, () => _Accumulator(color: d.category.color));
+        grouped[name]!.amount += d.debt.monthlyPayment;
+        total += d.debt.monthlyPayment;
       }
 
       final stats = grouped.entries

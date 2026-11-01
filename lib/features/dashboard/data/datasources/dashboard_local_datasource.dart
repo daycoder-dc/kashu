@@ -28,8 +28,14 @@ class DashboardLocalDatasource {
   Future<double> getTotalPaidExpenses(int month, int year) =>
       _transactionDao.sumPaidExpensesByMonth(month, year);
 
+  Future<double> getFixedExpensesTotal() =>
+      _fixedExpenseDao.sumActiveExpenses();
+
   Future<double> getFixedExpensesPaid(int month, int year) =>
       _fixedExpenseDao.sumPaidExpenses(month, year);
+
+  Future<double> getDebtPaymentsTotal(int month, int year) =>
+      _debtDao.sumDuePayments(month, year);
 
   Future<double> getDebtPaymentsPaid(int month, int year) =>
       _debtDao.sumPaidPayments(month, year);
