@@ -189,15 +189,22 @@ class _DbMaintenancePageState extends State<DbMaintenancePage> {
       files.single.path!,
       sl<AppDatabase>(),
     );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Importacion exitosa. Reiniciando...'),
-          duration: Duration(seconds: 1),
+    if (!mounted) return;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Importacion exitosa'),
+        content: const Text(
+          'Los datos se importaron correctamente. La app se cerrara para aplicar los cambios.',
         ),
-      );
-    }
-    await Future.delayed(const Duration(milliseconds: 1200));
-    exit(0);
+        actions: [
+          FilledButton(
+            onPressed: () => exit(0),
+            child: const Text('Aceptar'),
+          ),
+        ],
+      ),
+    );
   }
 }

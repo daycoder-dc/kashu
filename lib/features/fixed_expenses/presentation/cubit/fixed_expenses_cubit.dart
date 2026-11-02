@@ -33,6 +33,16 @@ class FixedExpensesCubit extends Cubit<FixedExpensesState> {
     sl<DashboardCubit>().refresh();
   }
 
+  Future<void> toggleDebtPayment(
+      int debtPaymentId, int month, int year, bool isPaid) async {
+    await _repository.toggleDebtPayment(
+      debtPaymentId: debtPaymentId,
+      isPaid: isPaid,
+    );
+    await loadMonth(month, year);
+    sl<DashboardCubit>().refresh();
+  }
+
   Future<void> createFixedExpense({
     required String name,
     required double amount,

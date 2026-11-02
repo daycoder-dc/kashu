@@ -1,18 +1,22 @@
 import 'package:drift/drift.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/daos/debt_dao.dart';
 import '../../../../core/database/daos/fixed_expense_dao.dart';
 import '../../../../core/database/daos/transaction_dao.dart';
 
 class FixedExpenseLocalDatasource {
   final FixedExpenseDao _fixedExpenseDao;
   final TransactionDao _transactionDao;
+  final DebtDao _debtDao;
 
   FixedExpenseLocalDatasource({
     required FixedExpenseDao fixedExpenseDao,
     required TransactionDao transactionDao,
+    required DebtDao debtDao,
   })  : _fixedExpenseDao = fixedExpenseDao,
-        _transactionDao = transactionDao;
+        _transactionDao = transactionDao,
+        _debtDao = debtDao;
 
   Stream<List<FixedExpenseWithCategory>> watchActiveWithPayments(
       int month, int year) {
@@ -67,4 +71,13 @@ class FixedExpenseLocalDatasource {
 
   Future<double> getTotalIncome(int month, int year) =>
       _transactionDao.sumByTypeAndMonth(1, month, year);
+
+  Future<List<DebtPaymentWithInfo>> getDebtPaymentsForMonth(
+      int month, int year) {
+    return _debtDao.getPaymentsForMonth(month, year);
+  }
+
+  Future<void> toggleDebtPayment(int paymentId, bool isPaid) {
+    return _debtDao.togglePayment(paymentId, isPaid);
+  }
 }

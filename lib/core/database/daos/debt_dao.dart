@@ -21,6 +21,18 @@ class DebtWithCategory {
   });
 }
 
+class DebtPaymentWithInfo {
+  final DebtPayment payment;
+  final Debt debt;
+  final Category category;
+
+  DebtPaymentWithInfo({
+    required this.payment,
+    required this.debt,
+    required this.category,
+  });
+}
+
 @DriftAccessor(tables: [Debts, DebtPayments, Categories])
 class DebtDao extends DatabaseAccessor<AppDatabase> with _$DebtDaoMixin {
   DebtDao(super.db);
@@ -163,6 +175,26 @@ class DebtDao extends DatabaseAccessor<AppDatabase> with _$DebtDaoMixin {
           debtPayments.year.equals(year));
     final result = await query.getSingle();
     return result.read(sum) ?? 0.0;
+  }
+
+  Future<List<DebtPaymentWithInfo>> getPaymentsForMonth(
+      int month, int year) async {
+    final query = select(debtPayments).join([
+      innerJoin(debts, debts.id.equalsExp(debtPayments.debtId)),
+      innerJoin(categories, categories.id.equalsExp(debts.categoryId)),
+    ])
+      ..where(debtPayments.month.equals(month) &
+          debtPayments.year.equals(year) &
+          debts.isActive.equals(true));
+
+    final rows = await query.get();
+    return rows
+        .map((row) => DebtPaymentWithInfo(
+              payment: row.readTable(debtPayments),
+              debt: row.readTable(debts),
+              category: row.readTable(categories),
+            ))
+        .toList();
   }
 
   static double calculateMonthlyPayment(

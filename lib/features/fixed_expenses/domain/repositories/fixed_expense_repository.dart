@@ -32,4 +32,9 @@ abstract class FixedExpenseRepository {
     required int year,
     required bool isPaid,
   });
+
+  Future<Either<Failure, void>> toggleDebtPayment({
+    required int debtPaymentId,
+    required bool isPaid,
+  });
 }

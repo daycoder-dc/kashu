@@ -272,8 +272,12 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
       margin: const EdgeInsets.only(bottom: 6),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => _showAddEditDialog(context, expense: expense),
-        onLongPress: () => _showDeleteDialog(context, expense),
+        onTap: expense.isDebtPayment
+            ? null
+            : () => _showAddEditDialog(context, expense: expense),
+        onLongPress: expense.isDebtPayment
+            ? null
+            : () => _showDeleteDialog(context, expense),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
@@ -309,7 +313,9 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                       ),
                     ),
                     Text(
-                      expense.categoryName,
+                      expense.isDebtPayment
+                          ? '${expense.categoryName} · Credito'
+                          : expense.categoryName,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -331,12 +337,21 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                 child: Checkbox(
                   value: expense.isPaidThisMonth,
                   onChanged: (value) {
-                    _cubit.togglePayment(
-                      expense.id,
-                      _currentMonth.month,
-                      _currentMonth.year,
-                      value ?? false,
-                    );
+                    if (expense.isDebtPayment) {
+                      _cubit.toggleDebtPayment(
+                        expense.debtPaymentId!,
+                        _currentMonth.month,
+                        _currentMonth.year,
+                        value ?? false,
+                      );
+                    } else {
+                      _cubit.togglePayment(
+                        expense.id,
+                        _currentMonth.month,
+                        _currentMonth.year,
+                        value ?? false,
+                      );
+                    }
                   },
                   activeColor: theme.appColors.success,
                 ),

@@ -18,6 +18,8 @@ class FixedExpenseRepositoryImpl implements FixedExpenseRepository {
     try {
       final items = await _datasource.getActiveWithPayments(month, year);
       final income = await _datasource.getTotalIncome(month, year);
+      final debtPayments =
+          await _datasource.getDebtPaymentsForMonth(month, year);
 
       final expenses = items
           .map((item) => FixedExpenseEntity(
@@ -33,14 +35,32 @@ class FixedExpenseRepositoryImpl implements FixedExpenseRepository {
               ))
           .toList();
 
+      final debtExpenses = debtPayments
+          .map((dp) => FixedExpenseEntity(
+                id: dp.debt.id,
+                name: dp.debt.name,
+                amount: dp.payment.amount,
+                categoryId: dp.category.id,
+                categoryName: dp.category.name,
+                categoryColor: dp.category.color,
+                categoryIconCodePoint: dp.category.iconCodePoint,
+                isActive: true,
+                isPaidThisMonth: dp.payment.isPaid,
+                isDebtPayment: true,
+                debtPaymentId: dp.payment.id,
+              ))
+          .toList();
+
+      final allExpenses = [...expenses, ...debtExpenses];
+
       final totalExpenses =
-          expenses.fold<double>(0, (sum, e) => sum + e.amount);
-      final totalPaid = expenses
+          allExpenses.fold<double>(0, (sum, e) => sum + e.amount);
+      final totalPaid = allExpenses
           .where((e) => e.isPaidThisMonth)
           .fold<double>(0, (sum, e) => sum + e.amount);
 
       return Right(FixedExpensesSummary(
-        expenses: expenses,
+        expenses: allExpenses,
         totalExpenses: totalExpenses,
         totalPaid: totalPaid,
         totalRemaining: totalExpenses - totalPaid,
@@ -126,6 +146,19 @@ class FixedExpenseRepositoryImpl implements FixedExpenseRepository {
   }) async {
     try {
       await _datasource.togglePayment(fixedExpenseId, month, year, isPaid);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> toggleDebtPayment({
+    required int debtPaymentId,
+    required bool isPaid,
+  }) async {
+    try {
+      await _datasource.toggleDebtPayment(debtPaymentId, isPaid);
       return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(message: e.toString()));

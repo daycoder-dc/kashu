@@ -86,11 +86,12 @@ class _ExpensePieChartState extends State<ExpensePieChart> {
         value: stat.totalAmount,
         color: Color(stat.categoryColor),
         radius: radius,
-        title: isTouched ? '${stat.percentage.toStringAsFixed(1)}%' : '',
+        title: '${stat.percentage.toStringAsFixed(0)}%',
+        showTitle: stat.percentage >= 5,
         titleStyle: TextStyle(
-          fontSize: 11,
+          fontSize: isTouched ? 12 : 10,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onInverseSurface,
+          color: Colors.white,
         ),
       );
     });
