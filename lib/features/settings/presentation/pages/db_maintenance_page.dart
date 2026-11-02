@@ -153,13 +153,22 @@ class _DbMaintenancePageState extends State<DbMaintenancePage> {
     }
   }
 
-  void _confirmImport() {
+  Future<void> _confirmImport() async {
+    final files = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['db'],
+    );
+    if (files.isEmpty || files.single.path == null) return;
+    final filePath = files.single.path!;
+
+    if (!mounted) return;
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         title: const Text('Importar base de datos'),
         content: const Text(
-          'Esto reemplazara todos tus datos actuales con los del archivo seleccionado. Esta accion no se puede deshacer.\n\nDespues de importar, debes reiniciar la app completamente.',
+          'Esto reemplazara todos tus datos actuales con los del archivo seleccionado. Esta accion no se puede deshacer.\n\nLa app se cerrara automaticamente despues de importar.',
         ),
         actions: [
           TextButton(
@@ -167,41 +176,15 @@ class _DbMaintenancePageState extends State<DbMaintenancePage> {
             child: const Text('Cancelar'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              _run(_importBackup);
+              await _backupService.importFrom(
+                filePath,
+                sl<AppDatabase>(),
+              );
+              exit(0);
             },
             child: const Text('Importar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _importBackup() async {
-    final files = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['db'],
-    );
-    if (files.isEmpty || files.single.path == null) return;
-
-    await _backupService.importFrom(
-      files.single.path!,
-      sl<AppDatabase>(),
-    );
-    if (!mounted) return;
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Importacion exitosa'),
-        content: const Text(
-          'Los datos se importaron correctamente. La app se cerrara para aplicar los cambios.',
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => exit(0),
-            child: const Text('Aceptar'),
           ),
         ],
       ),
