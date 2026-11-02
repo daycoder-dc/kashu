@@ -8,6 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_info.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/utils/thousand_separator_formatter.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
 import 'categories_page.dart';
@@ -153,6 +154,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => context.pushNamed('pinChange'),
               ),
+              _BiometricToggle(),
               const Divider(height: 32),
               _SectionHeader(title: 'Datos', theme: theme),
               ListTile(
@@ -320,6 +322,38 @@ class _SettingsPageState extends State<SettingsPage> {
       ThemeMode.dark => 'Oscuro',
       _ => 'Sistema',
     };
+  }
+}
+
+class _BiometricToggle extends StatefulWidget {
+  @override
+  State<_BiometricToggle> createState() => _BiometricToggleState();
+}
+
+class _BiometricToggleState extends State<_BiometricToggle> {
+  late final AuthCubit _authCubit;
+  late bool _enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _authCubit = sl<AuthCubit>();
+    _enabled = _authCubit.biometricEnabled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_authCubit.biometricAvailable) return const SizedBox.shrink();
+    return SwitchListTile(
+      secondary: Icon(PhosphorIconsLight.fingerprint),
+      title: const Text('Huella digital'),
+      subtitle: const Text('Desbloquea la app con tu huella'),
+      value: _enabled,
+      onChanged: (v) {
+        setState(() => _enabled = v);
+        _authCubit.setBiometricEnabled(v);
+      },
+    );
   }
 }
 

@@ -75,7 +75,7 @@ class _LockScreenPageState extends State<LockScreenPage> {
         body: SafeArea(
           child: Column(
             children: [
-              const Spacer(flex: 2),
+              const Spacer(flex: 1),
               Icon(
                 Icons.lock_rounded,
                 size: 48,

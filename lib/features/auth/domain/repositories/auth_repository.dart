@@ -6,6 +6,8 @@ abstract class AuthRepository {
   FutureEither<void> setPin(String pin);
   FutureEither<bool> hasPin();
   FutureEither<bool> isBiometricAvailable();
+  FutureEither<bool> isBiometricEnabled();
+  FutureEither<void> setBiometricEnabled(bool enabled);
   FutureEither<bool> isOnboardingCompleted();
   FutureEither<void> completeOnboarding();
 }

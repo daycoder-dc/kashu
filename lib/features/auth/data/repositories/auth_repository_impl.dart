@@ -12,6 +12,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   static const _pinKey = 'kashu_pin';
   static const _onboardingKey = 'kashu_onboarding_completed';
+  static const _biometricEnabledKey = 'kashu_biometric_enabled';
 
   AuthRepositoryImpl({
     required LocalAuthentication localAuth,
@@ -68,6 +69,29 @@ class AuthRepositoryImpl implements AuthRepository {
       final canCheck = await _localAuth.canCheckBiometrics;
       final isDeviceSupported = await _localAuth.isDeviceSupported();
       return Right(canCheck && isDeviceSupported);
+    } catch (e) {
+      return Left(AuthFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  FutureEither<bool> isBiometricEnabled() async {
+    try {
+      final value = await _secureStorage.read(key: _biometricEnabledKey);
+      return Right(value != 'false');
+    } catch (e) {
+      return Left(AuthFailure(message: e.toString()));
+    }
+  }
+
+  @override
+  FutureEither<void> setBiometricEnabled(bool enabled) async {
+    try {
+      await _secureStorage.write(
+        key: _biometricEnabledKey,
+        value: enabled.toString(),
+      );
+      return const Right(null);
     } catch (e) {
       return Left(AuthFailure(message: e.toString()));
     }

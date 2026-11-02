@@ -6,6 +6,7 @@ import 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;
   bool _biometricAvailable = false;
+  bool _biometricEnabled = true;
   bool _isAuthenticating = false;
 
   AuthCubit({required AuthRepository repository})
@@ -13,12 +14,19 @@ class AuthCubit extends Cubit<AuthState> {
         super(const AuthInitial());
 
   bool get isAuthenticated => state is AuthAuthenticated;
+  bool get biometricAvailable => _biometricAvailable;
+  bool get biometricEnabled => _biometricEnabled;
 
   Future<void> checkAuthStatus() async {
     emit(const AuthLoading());
 
     final biometricResult = await _repository.isBiometricAvailable();
     _biometricAvailable = biometricResult.getOrElse((_) => false);
+
+    final enabledResult = await _repository.isBiometricEnabled();
+    _biometricEnabled = enabledResult.getOrElse((_) => true);
+
+    final effectiveBiometric = _biometricAvailable && _biometricEnabled;
 
     final hasPinResult = await _repository.hasPin();
     final hasPin = hasPinResult.getOrElse((_) => false);
@@ -33,10 +41,15 @@ class AuthCubit extends Cubit<AuthState> {
       }
     } else {
       emit(AuthLocked(
-        biometricAvailable: _biometricAvailable,
+        biometricAvailable: effectiveBiometric,
         hasPin: true,
       ));
     }
+  }
+
+  Future<void> setBiometricEnabled(bool enabled) async {
+    await _repository.setBiometricEnabled(enabled);
+    _biometricEnabled = enabled;
   }
 
   Future<void> authenticateWithBiometrics() async {
@@ -115,7 +128,7 @@ class AuthCubit extends Cubit<AuthState> {
   void lock() {
     if (state is AuthAuthenticated) {
       emit(AuthLocked(
-        biometricAvailable: _biometricAvailable,
+        biometricAvailable: _biometricAvailable && _biometricEnabled,
         hasPin: true,
       ));
     }
