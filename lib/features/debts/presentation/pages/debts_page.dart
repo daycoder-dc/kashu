@@ -8,11 +8,14 @@ import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 import '../../../../shared/widgets/breathing_icon.dart';
 import '../../../../core/database/daos/debt_dao.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/icon_registry.dart';
 import '../../../../core/utils/thousand_separator_formatter.dart';
 import '../../../../shared/widgets/kpi_card.dart';
+import '../../../transactions/presentation/cubit/transaction_form_cubit.dart';
+import '../../../transactions/presentation/cubit/transaction_form_state.dart';
 import '../../domain/entities/debt_entity.dart';
 import '../cubit/debts_cubit.dart';
 import '../cubit/debts_state.dart';
@@ -170,12 +173,16 @@ class _DebtsPageState extends State<DebtsPage> {
   }
 
   void _showAddDebtSheet(BuildContext context) {
+    final formCubit = sl<TransactionFormCubit>();
+    formCubit.loadCategories(TransactionType.expense);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       builder: (_) => _AddDebtForm(
+        formCubit: formCubit,
         onSave: (name, totalAmount, interestRate, installments,
             monthlyPayment, startDate, categoryId) {
           _cubit.createDebt(
@@ -189,7 +196,7 @@ class _DebtsPageState extends State<DebtsPage> {
           );
         },
       ),
-    );
+    ).then((_) => formCubit.close());
   }
 }
 
@@ -320,11 +327,12 @@ class _DebtTile extends StatelessWidget {
 }
 
 class _AddDebtForm extends StatefulWidget {
+  final TransactionFormCubit formCubit;
   final void Function(String name, double totalAmount, double interestRate,
       int installments, double monthlyPayment, DateTime startDate,
       int categoryId) onSave;
 
-  const _AddDebtForm({required this.onSave});
+  const _AddDebtForm({required this.formCubit, required this.onSave});
 
   @override
   State<_AddDebtForm> createState() => _AddDebtFormState();
@@ -338,7 +346,7 @@ class _AddDebtFormState extends State<_AddDebtForm> {
   final _installmentsController = TextEditingController();
   final _monthlyController = TextEditingController();
   DateTime _startDate = DateTime.now();
-  final int _categoryId = 1;
+  int? _categoryId;
   bool _autoCalculate = true;
 
   @override
@@ -483,6 +491,36 @@ class _AddDebtFormState extends State<_AddDebtForm> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
+              BlocBuilder<TransactionFormCubit, TransactionFormState>(
+                bloc: widget.formCubit,
+                builder: (ctx, formState) {
+                  if (formState is! TransactionFormReady) {
+                    return const SizedBox.shrink();
+                  }
+                  final categories = formState.categories;
+                  return DropdownButtonFormField<int>(
+                    initialValue: _categoryId,
+                    decoration: const InputDecoration(
+                      labelText: 'Categoria',
+                    ),
+                    items: categories
+                        .map((c) => DropdownMenuItem<int>(
+                              value: c.id,
+                              child: Row(
+                                children: [
+                                  Icon(c.iconData, color: c.displayColor, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(c.name),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                    onChanged: (v) => setState(() => _categoryId = v),
+                    validator: (v) => v == null ? 'Requerido' : null,
+                  );
+                },
+              ),
+              const SizedBox(height: Spacing.md),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(PhosphorIconsLight.calendar),
@@ -524,7 +562,7 @@ class _AddDebtFormState extends State<_AddDebtForm> {
       int.parse(_installmentsController.text),
       ThousandSeparatorFormatter.parse(_monthlyController.text) ?? 0,
       _startDate,
-      _categoryId,
+      _categoryId!,
     );
     Navigator.pop(context);
   }
