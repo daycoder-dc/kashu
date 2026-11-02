@@ -395,6 +395,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setSheetState) {
@@ -443,7 +444,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                       }
                       final categories = formState.categories;
                       return DropdownButtonFormField<int>(
-                        value: selectedCategoryId,
+                        initialValue: selectedCategoryId,
                         decoration: const InputDecoration(
                           labelText: 'Categoria',
                         ),

@@ -189,6 +189,15 @@ class _DbMaintenancePageState extends State<DbMaintenancePage> {
       files.single.path!,
       sl<AppDatabase>(),
     );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Importacion exitosa. Reiniciando...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+    await Future.delayed(const Duration(milliseconds: 1200));
     exit(0);
   }
 }

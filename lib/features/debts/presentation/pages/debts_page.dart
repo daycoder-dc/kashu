@@ -171,6 +171,7 @@ class _DebtsPageState extends State<DebtsPage> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       builder: (_) => _AddDebtForm(
         onSave: (name, totalAmount, interestRate, installments,
             monthlyPayment, startDate, categoryId) {

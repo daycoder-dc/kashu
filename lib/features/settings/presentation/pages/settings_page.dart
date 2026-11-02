@@ -10,6 +10,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/utils/thousand_separator_formatter.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
+import 'categories_page.dart';
 import 'credits_page.dart';
 import 'db_maintenance_page.dart';
 import 'terms_page.dart';
@@ -93,6 +94,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Text(_themeModeLabel(settings.themeMode)),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () => _showThemePicker(settings.themeMode),
+              ),
+              ListTile(
+                leading: Icon(PhosphorIconsLight.tag),
+                title: const Text('Categorias'),
+                subtitle: const Text('Crear y editar categorias'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const CategoriesPage()),
+                ),
               ),
               const Divider(height: 32),
               _SectionHeader(title: 'Presupuesto mensual', theme: theme),
@@ -194,6 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showCurrencyPicker(String current) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       builder: (ctx) {
         final currencies = AppConstants.supportedCurrencies;
         return SafeArea(
@@ -236,6 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showThemePicker(ThemeMode current) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       builder: (ctx) {
         return SafeArea(
           child: Column(
