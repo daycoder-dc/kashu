@@ -58,6 +58,16 @@ class DebtsCubit extends Cubit<DebtsState> {
     await loadDebts();
   }
 
+  Future<void> updateDebt({
+    required int id,
+    required String name,
+    required int categoryId,
+  }) async {
+    await _repository.updateDebt(id: id, name: name, categoryId: categoryId);
+    await loadDebtDetail(id);
+    sl<FixedExpensesCubit>().refresh();
+  }
+
   Future<void> deleteDebt(int id) async {
     await _repository.deleteDebt(id);
     await loadDebts();

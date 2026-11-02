@@ -40,6 +40,14 @@ class DebtLocalDatasource {
     );
   }
 
+  Future<void> updateDebt({
+    required int id,
+    required String name,
+    required int categoryId,
+  }) {
+    return _debtDao.updateDebtFields(id, name, categoryId);
+  }
+
   Future<void> deleteDebt(int id) {
     return _debtDao.deleteDebt(id);
   }

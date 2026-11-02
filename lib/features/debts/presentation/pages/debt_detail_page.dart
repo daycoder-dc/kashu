@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/enums/transaction_type.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/icon_registry.dart';
+import '../../../transactions/presentation/cubit/transaction_form_cubit.dart';
+import '../../../transactions/presentation/cubit/transaction_form_state.dart';
+import '../../domain/entities/debt_entity.dart';
 import '../../domain/entities/debt_payment_entity.dart';
 import '../cubit/debts_cubit.dart';
 import '../cubit/debts_state.dart';
@@ -43,6 +47,18 @@ class _DebtDetailPageState extends State<DebtDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalle del credito'),
+        actions: [
+          BlocBuilder<DebtsCubit, DebtsState>(
+            bloc: _cubit,
+            builder: (context, state) {
+              if (state is! DebtDetailLoaded) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: () => _showEditSheet(context, state.debt),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<DebtsCubit, DebtsState>(
         bloc: _cubit,
@@ -60,9 +76,11 @@ class _DebtDetailPageState extends State<DebtDetailPage> {
           final debt = state.debt;
           final payments = state.payments;
 
-          return ListView(
-            padding: const EdgeInsets.all(Spacing.lg),
-            children: [
+          return RefreshIndicator(
+            onRefresh: () async => _cubit.loadDebtDetail(widget.debtId),
+            child: ListView(
+              padding: const EdgeInsets.all(Spacing.lg),
+              children: [
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(Spacing.lg),
@@ -146,11 +164,101 @@ class _DebtDetailPageState extends State<DebtDetailPage> {
                     onToggle: (isPaid) => _cubit.togglePayment(
                         p.id, isPaid, widget.debtId),
                   )),
-            ],
+              ],
+            ),
           );
         },
       ),
     );
+  }
+
+  void _showEditSheet(BuildContext context, DebtEntity debt) {
+    final nameController = TextEditingController(text: debt.name);
+    int? selectedCategoryId = debt.categoryId;
+
+    final formCubit = sl<TransactionFormCubit>();
+    formCubit.loadCategories(TransactionType.expense);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 24, right: 24, top: 24,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Editar credito',
+                    style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                  const SizedBox(height: 12),
+                  BlocBuilder<TransactionFormCubit, TransactionFormState>(
+                    bloc: formCubit,
+                    builder: (ctx, formState) {
+                      if (formState is! TransactionFormReady) {
+                        return const SizedBox.shrink();
+                      }
+                      return DropdownButtonFormField<int>(
+                        initialValue: selectedCategoryId,
+                        decoration: const InputDecoration(
+                          labelText: 'Categoria',
+                        ),
+                        items: formState.categories
+                            .map((c) => DropdownMenuItem<int>(
+                                  value: c.id,
+                                  child: Row(
+                                    children: [
+                                      Icon(c.iconData, color: c.displayColor, size: 20),
+                                      const SizedBox(width: 8),
+                                      Text(c.name),
+                                    ],
+                                  ),
+                                ))
+                            .toList(),
+                        onChanged: (v) {
+                          setSheetState(() => selectedCategoryId = v);
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: () {
+                      final name = nameController.text.trim();
+                      if (name.isEmpty || selectedCategoryId == null) return;
+                      Navigator.pop(ctx);
+                      _cubit.updateDebt(
+                        id: debt.id,
+                        name: name,
+                        categoryId: selectedCategoryId!,
+                      );
+                    },
+                    child: const Text('Guardar'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ).then((_) => formCubit.close());
   }
 }
 

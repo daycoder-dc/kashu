@@ -112,6 +112,15 @@ class DebtDao extends DatabaseAccessor<AppDatabase> with _$DebtDaoMixin {
     return update(debts).replace(entry);
   }
 
+  Future<void> updateDebtFields(int id, String name, int categoryId) async {
+    await (update(debts)..where((d) => d.id.equals(id))).write(
+      DebtsCompanion(
+        name: Value(name),
+        categoryId: Value(categoryId),
+      ),
+    );
+  }
+
   Future<void> deleteDebt(int id) async {
     await (delete(debtPayments)..where((p) => p.debtId.equals(id))).go();
     await (delete(debts)..where((d) => d.id.equals(id))).go();

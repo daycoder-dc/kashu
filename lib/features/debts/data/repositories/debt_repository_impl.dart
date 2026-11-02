@@ -132,6 +132,20 @@ class DebtRepositoryImpl implements DebtRepository {
   }
 
   @override
+  Future<Either<Failure, void>> updateDebt({
+    required int id,
+    required String name,
+    required int categoryId,
+  }) async {
+    try {
+      await _datasource.updateDebt(id: id, name: name, categoryId: categoryId);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> deleteDebt(int id) async {
     try {
       await _datasource.deleteDebt(id);

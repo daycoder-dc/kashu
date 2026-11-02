@@ -22,6 +22,12 @@ abstract class DebtRepository {
     required int categoryId,
   });
 
+  Future<Either<Failure, void>> updateDebt({
+    required int id,
+    required String name,
+    required int categoryId,
+  });
+
   Future<Either<Failure, void>> deleteDebt(int id);
 
   Future<Either<Failure, void>> togglePayment({
