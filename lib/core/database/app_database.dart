@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -68,6 +68,15 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(debts);
             await m.createTable(debtPayments);
+          }
+          if (from < 4) {
+            // Shift all debt payments forward by 1 month:
+            // first payment should be the month after disbursement, not same month
+            await customStatement('''
+              UPDATE debt_payments SET
+                month = CASE WHEN month = 12 THEN 1 ELSE month + 1 END,
+                year = CASE WHEN month = 12 THEN year + 1 ELSE year END
+            ''');
           }
         },
       );

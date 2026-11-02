@@ -73,70 +73,73 @@ class _DebtsPageState extends State<DebtsPage> {
           }
           final summary = state.summary;
 
-          return ListView(
-            padding: const EdgeInsets.all(Spacing.lg),
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: KpiCard(
-                      title: 'Deuda total',
-                      value: currencyFormat.format(summary.totalDebt),
-                      icon: Icon(PhosphorIconsLight.bank, size: 16,
-                          color: scheme.error),
-                      valueColor: scheme.error,
+          return RefreshIndicator(
+            onRefresh: () async => _cubit.loadDebts(),
+            child: ListView(
+              padding: const EdgeInsets.all(Spacing.lg),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: KpiCard(
+                        title: 'Deuda total',
+                        value: currencyFormat.format(summary.totalDebt),
+                        icon: Icon(PhosphorIconsLight.bank, size: 16,
+                            color: scheme.error),
+                        valueColor: scheme.error,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: KpiCard(
-                      title: 'Pagado',
-                      value: currencyFormat.format(summary.totalPaid),
-                      icon: Icon(PhosphorIconsLight.checkCircle, size: 16,
-                          color: colors.income),
-                      valueColor: colors.income,
+                    const SizedBox(width: Spacing.sm),
+                    Expanded(
+                      child: KpiCard(
+                        title: 'Pagado',
+                        value: currencyFormat.format(summary.totalPaid),
+                        icon: Icon(PhosphorIconsLight.checkCircle, size: 16,
+                            color: colors.income),
+                        valueColor: colors.income,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Spacing.sm),
-              Row(
-                children: [
-                  Expanded(
-                    child: KpiCard(
-                      title: 'Restante',
-                      value: currencyFormat.format(summary.totalRemaining),
-                      icon: Icon(PhosphorIconsLight.hourglass, size: 16,
-                          color: colors.warning),
-                      valueColor: colors.warning,
+                  ],
+                ),
+                const SizedBox(height: Spacing.sm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: KpiCard(
+                        title: 'Restante',
+                        value: currencyFormat.format(summary.totalRemaining),
+                        icon: Icon(PhosphorIconsLight.hourglass, size: 16,
+                            color: colors.warning),
+                        valueColor: colors.warning,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: KpiCard(
-                      title: 'Cuota mensual',
-                      value: currencyFormat.format(summary.totalMonthlyPayments),
-                      icon: Icon(PhosphorIconsLight.calendarCheck, size: 16,
-                          color: scheme.primary),
-                      valueColor: scheme.primary,
+                    const SizedBox(width: Spacing.sm),
+                    Expanded(
+                      child: KpiCard(
+                        title: 'Cuota mensual',
+                        value: currencyFormat.format(summary.totalMonthlyPayments),
+                        icon: Icon(PhosphorIconsLight.calendarCheck, size: 16,
+                            color: scheme.primary),
+                        valueColor: scheme.primary,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Spacing.xl),
-              if (summary.debts.isEmpty)
-                _EmptyState()
-              else
-                ...summary.debts.map((debt) => _DebtTile(
-                      debt: debt,
-                      currencyFormat: currencyFormat,
-                      onTap: () async {
-                        await context.push('/debts/${debt.id}');
-                        _cubit.loadDebts();
-                      },
-                      onDelete: () => _confirmDelete(debt),
-                    )),
-            ],
+                  ],
+                ),
+                const SizedBox(height: Spacing.xl),
+                if (summary.debts.isEmpty)
+                  _EmptyState()
+                else
+                  ...summary.debts.map((debt) => _DebtTile(
+                        debt: debt,
+                        currencyFormat: currencyFormat,
+                        onTap: () async {
+                          await context.push('/debts/${debt.id}');
+                          _cubit.loadDebts();
+                        },
+                        onDelete: () => _confirmDelete(debt),
+                      )),
+              ],
+            ),
           );
         },
       ),

@@ -142,10 +142,10 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SettingsCubit(
         repository: sl(),
       ));
-  sl.registerFactory(() => FixedExpensesCubit(
+  sl.registerLazySingleton(() => FixedExpensesCubit(
         repository: sl(),
       ));
-  sl.registerFactory(() => DebtsCubit(
+  sl.registerLazySingleton(() => DebtsCubit(
         repository: sl(),
       ));
 }

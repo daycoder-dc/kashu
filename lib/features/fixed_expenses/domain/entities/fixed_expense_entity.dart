@@ -12,6 +12,8 @@ class FixedExpenseEntity extends Equatable {
   final bool isPaidThisMonth;
   final bool isDebtPayment;
   final int? debtPaymentId;
+  final int? installmentNumber;
+  final int? totalInstallments;
 
   const FixedExpenseEntity({
     required this.id,
@@ -25,6 +27,8 @@ class FixedExpenseEntity extends Equatable {
     required this.isPaidThisMonth,
     this.isDebtPayment = false,
     this.debtPaymentId,
+    this.installmentNumber,
+    this.totalInstallments,
   });
 
   FixedExpenseEntity copyWith({
@@ -39,6 +43,8 @@ class FixedExpenseEntity extends Equatable {
     bool? isPaidThisMonth,
     bool? isDebtPayment,
     int? debtPaymentId,
+    int? installmentNumber,
+    int? totalInstallments,
   }) {
     return FixedExpenseEntity(
       id: id ?? this.id,
@@ -53,6 +59,8 @@ class FixedExpenseEntity extends Equatable {
       isPaidThisMonth: isPaidThisMonth ?? this.isPaidThisMonth,
       isDebtPayment: isDebtPayment ?? this.isDebtPayment,
       debtPaymentId: debtPaymentId ?? this.debtPaymentId,
+      installmentNumber: installmentNumber ?? this.installmentNumber,
+      totalInstallments: totalInstallments ?? this.totalInstallments,
     );
   }
 
@@ -69,5 +77,7 @@ class FixedExpenseEntity extends Equatable {
         isPaidThisMonth,
         isDebtPayment,
         debtPaymentId,
+        installmentNumber,
+        totalInstallments,
       ];
 }

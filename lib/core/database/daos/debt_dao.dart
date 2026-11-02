@@ -94,7 +94,8 @@ class DebtDao extends DatabaseAccessor<AppDatabase> with _$DebtDaoMixin {
 
     await batch((b) {
       final companions = List.generate(totalInstallments, (i) {
-        final payDate = DateTime(startDate.year, startDate.month + i, 1);
+        // First payment is the month AFTER the disbursement date
+        final payDate = DateTime(startDate.year, startDate.month + i + 1, 1);
         return DebtPaymentsCompanion.insert(
           debtId: debtId,
           installmentNumber: i + 1,

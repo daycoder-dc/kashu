@@ -48,6 +48,8 @@ class FixedExpenseRepositoryImpl implements FixedExpenseRepository {
                 isPaidThisMonth: dp.payment.isPaid,
                 isDebtPayment: true,
                 debtPaymentId: dp.payment.id,
+                installmentNumber: dp.payment.installmentNumber,
+                totalInstallments: dp.debt.totalInstallments,
               ))
           .toList();
 

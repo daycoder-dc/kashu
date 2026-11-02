@@ -49,12 +49,6 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
   }
 
   @override
-  void dispose() {
-    _cubit.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -83,7 +77,10 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                     return Center(child: Text('Error: ${state.message}'));
                   }
                   if (state is FixedExpensesLoaded) {
-                    return _buildContent(context, state.summary);
+                    return RefreshIndicator(
+                      onRefresh: () async => _loadMonth(),
+                      child: _buildContent(context, state.summary),
+                    );
                   }
                   return const SizedBox.shrink();
                 },
@@ -99,42 +96,49 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
     final theme = Theme.of(context);
 
     if (summary.expenses.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BreathingIcon(
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withAlpha(80),
-                  shape: BoxShape.circle,
-                ),
-                child: PhosphorIcon(
-                  PhosphorIconsDuotone.clipboardText,
-                  size: 36,
-                  color: theme.colorScheme.primary,
-                ),
+      return ListView(
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  BreathingIcon(
+                    child: Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withAlpha(80),
+                        shape: BoxShape.circle,
+                      ),
+                      child: PhosphorIcon(
+                        PhosphorIconsDuotone.clipboardText,
+                        size: 36,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Sin gastos fijos',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Agrega tus gastos mensuales recurrentes\npara llevar control de lo que pagas',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Sin gastos fijos',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Agrega tus gastos mensuales recurrentes\npara llevar control de lo que pagas',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 
@@ -314,7 +318,7 @@ class _FixedExpensesPageState extends State<FixedExpensesPage> {
                     ),
                     Text(
                       expense.isDebtPayment
-                          ? '${expense.categoryName} · Credito'
+                          ? '${expense.categoryName} · Cuota ${expense.installmentNumber}/${expense.totalInstallments}'
                           : expense.categoryName,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,

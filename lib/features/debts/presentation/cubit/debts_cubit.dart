@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
+import '../../../fixed_expenses/presentation/cubit/fixed_expenses_cubit.dart';
 import '../../domain/repositories/debt_repository.dart';
 import 'debts_state.dart';
 
@@ -66,5 +67,6 @@ class DebtsCubit extends Cubit<DebtsState> {
     await _repository.togglePayment(paymentId: paymentId, isPaid: isPaid);
     await loadDebtDetail(debtId);
     sl<DashboardCubit>().refresh();
+    sl<FixedExpensesCubit>().refresh();
   }
 }

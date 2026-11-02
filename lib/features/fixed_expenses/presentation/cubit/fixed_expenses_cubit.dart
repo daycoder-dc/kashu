@@ -2,23 +2,32 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../dashboard/presentation/cubit/dashboard_cubit.dart';
+import '../../../debts/presentation/cubit/debts_cubit.dart';
 import '../../domain/repositories/fixed_expense_repository.dart';
 import 'fixed_expenses_state.dart';
 
 class FixedExpensesCubit extends Cubit<FixedExpensesState> {
   final FixedExpenseRepository _repository;
+  int _month = 0;
+  int _year = 0;
 
   FixedExpensesCubit({required FixedExpenseRepository repository})
       : _repository = repository,
         super(const FixedExpensesInitial());
 
   Future<void> loadMonth(int month, int year) async {
+    _month = month;
+    _year = year;
     emit(const FixedExpensesLoading());
     final result = await _repository.getSummary(month, year);
     result.fold(
       (failure) => emit(FixedExpensesError(message: failure.message)),
       (summary) => emit(FixedExpensesLoaded(summary: summary)),
     );
+  }
+
+  Future<void> refresh() async {
+    if (_month > 0) await loadMonth(_month, _year);
   }
 
   Future<void> togglePayment(
@@ -41,6 +50,7 @@ class FixedExpensesCubit extends Cubit<FixedExpensesState> {
     );
     await loadMonth(month, year);
     sl<DashboardCubit>().refresh();
+    sl<DebtsCubit>().loadDebts();
   }
 
   Future<void> createFixedExpense({
