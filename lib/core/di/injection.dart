@@ -85,7 +85,7 @@ Future<void> initDependencies() async {
       ));
   sl.registerLazySingleton(() => FixedExpenseLocalDatasource(
         fixedExpenseDao: sl(),
-        budgetDao: sl(),
+        transactionDao: sl(),
       ));
   sl.registerLazySingleton(() => DebtLocalDatasource(
         debtDao: sl(),

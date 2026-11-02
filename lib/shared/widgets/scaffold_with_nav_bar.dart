@@ -40,11 +40,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
             selectedIcon: Icon(PhosphorIconsFill.creditCard),
             label: 'Creditos',
           ),
-          NavigationDestination(
-            icon: Icon(PhosphorIconsLight.chartBar),
-            selectedIcon: Icon(PhosphorIconsFill.chartBar),
-            label: 'Stats',
-          ),
         ],
       ),
     );

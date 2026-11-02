@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
@@ -187,24 +189,6 @@ class _DbMaintenancePageState extends State<DbMaintenancePage> {
       files.single.path!,
       sl<AppDatabase>(),
     );
-
-    if (mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Importacion completada'),
-          content: const Text(
-            'La base de datos fue reemplazada. Debes cerrar y abrir la app completamente para que los cambios surtan efecto.',
-          ),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Entendido'),
-            ),
-          ],
-        ),
-      );
-    }
+    exit(0);
   }
 }

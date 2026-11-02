@@ -208,7 +208,7 @@ class AppTheme {
         backgroundColor: _darkSurface,
       ),
       bottomSheetTheme: base.bottomSheetTheme.copyWith(
-        backgroundColor: _darkSurface,
+        backgroundColor: const Color(0xFF2D2780),
       ),
       dividerTheme: DividerThemeData(
         color: scheme.outlineVariant,

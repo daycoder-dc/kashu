@@ -17,9 +17,7 @@ class DebtRepositoryImpl implements DebtRepository {
   Future<Either<Failure, DebtsSummary>> getSummary() async {
     try {
       final items = await _datasource.getActiveDebts();
-      final totalDebt = await _datasource.totalActiveDebt();
       final totalPaid = await _datasource.totalPaidAmount();
-      final totalMonthly = await _datasource.totalMonthlyPayments();
 
       final debts = items
           .map((item) => DebtEntity(
@@ -38,6 +36,10 @@ class DebtRepositoryImpl implements DebtRepository {
                 isActive: item.debt.isActive,
               ))
           .toList();
+
+      final totalDebt = debts.fold<double>(0, (sum, d) => sum + d.totalCost);
+      final totalMonthly =
+          debts.fold<double>(0, (sum, d) => sum + d.monthlyPayment);
 
       return Right(DebtsSummary(
         debts: debts,

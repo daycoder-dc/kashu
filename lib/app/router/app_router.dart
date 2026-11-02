@@ -14,7 +14,6 @@ import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/fixed_expenses/presentation/pages/fixed_expenses_page.dart';
 import '../../features/debts/presentation/pages/debt_detail_page.dart';
 import '../../features/debts/presentation/pages/debts_page.dart';
-import '../../features/statistics/presentation/pages/statistics_page.dart';
 import '../../features/transactions/domain/entities/transaction_entity.dart';
 import '../../features/transactions/presentation/pages/add_transaction_page.dart';
 import '../../features/transactions/presentation/pages/transaction_list_page.dart';
@@ -113,13 +112,6 @@ class AppRouter {
                   },
                 ),
               ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/statistics',
-              name: 'statistics',
-              builder: (context, state) => const StatisticsPage(),
             ),
           ]),
         ],

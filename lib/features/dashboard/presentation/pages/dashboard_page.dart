@@ -3,13 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
+import '../../../../core/database/daos/fixed_expense_dao.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/icon_registry.dart';
 import '../../../../shared/widgets/breathing_icon.dart';
 import '../../../../shared/widgets/kpi_card.dart';
 import '../../../../shared/widgets/month_selector.dart';
 import '../../../../shared/widgets/transaction_tile.dart';
+import '../../../statistics/presentation/cubit/statistics_cubit.dart';
+import '../../../statistics/presentation/cubit/statistics_state.dart';
+import '../../../statistics/presentation/widgets/category_legend.dart';
+import '../../../statistics/presentation/widgets/expense_bar_chart.dart';
+import '../../../statistics/presentation/widgets/expense_pie_chart.dart';
 import '../../../transactions/presentation/cubit/transaction_list_cubit.dart';
 import '../../../transactions/presentation/cubit/transaction_list_state.dart';
 import '../cubit/dashboard_cubit.dart';
@@ -25,8 +32,10 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   late final DashboardCubit _dashboardCubit;
   late final TransactionListCubit _transactionListCubit;
+  late final StatisticsCubit _statisticsCubit;
   late DateTime _currentMonth;
   final _currencyFormatter = CurrencyFormatter();
+  List<FixedExpenseWithCategory> _paidFixedExpenses = [];
 
   @override
   void initState() {
@@ -35,12 +44,27 @@ class _DashboardPageState extends State<DashboardPage> {
     _currentMonth = DateTime(now.year, now.month);
     _dashboardCubit = sl<DashboardCubit>();
     _transactionListCubit = sl<TransactionListCubit>();
+    _statisticsCubit = sl<StatisticsCubit>();
     _loadMonth();
   }
 
   void _loadMonth() {
     _dashboardCubit.loadMonth(_currentMonth.month, _currentMonth.year);
     _transactionListCubit.loadMonth(_currentMonth.month, _currentMonth.year);
+    _statisticsCubit.loadMonth(_currentMonth.month, _currentMonth.year);
+    _loadPaidFixedExpenses();
+  }
+
+  Future<void> _loadPaidFixedExpenses() async {
+    final all = await sl<FixedExpenseDao>().getActiveWithPayments(
+      _currentMonth.month,
+      _currentMonth.year,
+    );
+    if (mounted) {
+      setState(() {
+        _paidFixedExpenses = all.where((e) => e.isPaid).toList();
+      });
+    }
   }
 
   void _onMonthChanged(DateTime month) {
@@ -51,6 +75,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void dispose() {
     _transactionListCubit.close();
+    _statisticsCubit.close();
     super.dispose();
   }
 
@@ -67,10 +92,6 @@ class _DashboardPageState extends State<DashboardPage> {
             onPressed: () => context.pushNamed('settings'),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.pushNamed('addTransaction'),
-        child: Icon(PhosphorIconsBold.plus),
       ),
       body: SafeArea(
         child: Column(
@@ -89,13 +110,17 @@ class _DashboardPageState extends State<DashboardPage> {
                     _buildKpiGrid(),
                     const SizedBox(height: 20),
                     Text(
-                      'Transacciones recientes',
+                      'Actividad reciente',
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 8),
                     _buildTransactionList(),
+                    _buildPaidFixedExpenses(theme),
+                    const SizedBox(height: 24),
+                    _buildStatisticsSection(theme),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
@@ -203,7 +228,7 @@ class _DashboardPageState extends State<DashboardPage> {
         }
         if (state is TransactionListLoaded) {
           final transactions = state.transactions;
-          if (transactions.isEmpty) {
+          if (transactions.isEmpty && _paidFixedExpenses.isEmpty) {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
               child: Center(
@@ -239,7 +264,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       'Agrega tu primer ingreso o gasto\npara comenzar a organizar tus finanzas',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                   ],
@@ -267,6 +293,120 @@ class _DashboardPageState extends State<DashboardPage> {
           );
         }
         return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildPaidFixedExpenses(ThemeData theme) {
+    if (_paidFixedExpenses.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: _paidFixedExpenses.map((item) {
+        final color = Color(item.category.color);
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: color.withAlpha(30),
+            child: Icon(
+              resolveIcon(item.category.iconCodePoint),
+              color: color,
+              size: 20,
+            ),
+          ),
+          title: Text(
+            item.fixedExpense.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            '${item.category.name} · Gasto fijo',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _currencyFormatter.formatSigned(
+                  item.fixedExpense.amount,
+                  isExpense: true,
+                ),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.error,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(
+                PhosphorIconsFill.checkCircle,
+                size: 18,
+                color: theme.appColors.success,
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildStatisticsSection(ThemeData theme) {
+    return BlocBuilder<StatisticsCubit, StatisticsState>(
+      bloc: _statisticsCubit,
+      builder: (context, state) {
+        if (state is StatisticsLoading) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (state is! StatisticsLoaded || state.stats.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final stats = state.stats;
+        final totalExpenses = stats.fold<double>(
+          0,
+          (sum, s) => sum + s.totalAmount,
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Distribucion de gastos',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ExpensePieChart(
+              stats: stats,
+              totalExpenses: totalExpenses,
+              currencyFormatter: _currencyFormatter,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Gastos por categoria',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ExpenseBarChart(stats: stats),
+            const SizedBox(height: 24),
+            Text(
+              'Detalle',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Divider(height: 16),
+            CategoryLegend(
+              stats: stats,
+              currencyFormatter: _currencyFormatter,
+            ),
+          ],
+        );
       },
     );
   }
