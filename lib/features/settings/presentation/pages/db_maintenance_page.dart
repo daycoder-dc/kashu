@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphoricons_flutter/phosphoricons_flutter.dart';
 
+import '../../../../app/app.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/db_backup_service.dart';
 import '../../../../core/di/injection.dart';
@@ -143,21 +144,28 @@ class _DbMaintenancePageState extends State<DbMaintenancePage> {
 
   Future<void> _exportBackup() async {
     final copy = await _backupService.exportCopy();
-    final uri = await FilePicker.saveFile(
-      dialogTitle: 'Guardar copia de seguridad',
-      fileName: copy.uri.pathSegments.last,
-      bytes: await copy.readAsBytes(),
-    );
-    if (uri != null) {
-      _showSnack('Copia de seguridad exportada');
+    KashuApp.suppressLock = true;
+    try {
+      final uri = await FilePicker.saveFile(
+        dialogTitle: 'Guardar copia de seguridad',
+        fileName: copy.uri.pathSegments.last,
+        bytes: await copy.readAsBytes(),
+      );
+      if (uri != null) {
+        _showSnack('Copia de seguridad exportada');
+      }
+    } finally {
+      KashuApp.suppressLock = false;
     }
   }
 
   Future<void> _confirmImport() async {
+    KashuApp.suppressLock = true;
     final files = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['db'],
     );
+    KashuApp.suppressLock = false;
     if (files.isEmpty || files.single.path == null) return;
     final filePath = files.single.path!;
 

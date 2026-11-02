@@ -12,6 +12,8 @@ import 'router/app_router.dart';
 class KashuApp extends StatefulWidget {
   const KashuApp({super.key});
 
+  static bool suppressLock = false;
+
   @override
   State<KashuApp> createState() => _KashuAppState();
 }
@@ -36,6 +38,7 @@ class _KashuAppState extends State<KashuApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (KashuApp.suppressLock) return;
     if (state == AppLifecycleState.paused) {
       _authCubit.lock();
     }
